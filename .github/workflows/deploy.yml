@@ -2,7 +2,7 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches:
-      - main
+      - main  # Trigger the deployment when pushing to the main branch
 permissions:
   contents: read
   pages: write
@@ -30,13 +30,13 @@ jobs:
     - name: Build the project
       run: npm run build
       env:
-        VITE_GITHUB_PAGES: true
+        VITE_GITHUB_PAGES: true  # Ensure Vite correctly builds for GitHub Pages
         VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
         VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
     - name: Upload artifact
       uses: actions/upload-pages-artifact@v3
       with:
-        path: ./dist
+        path: ./dist  # Ensure this matches the actual output folder of Vite
   deploy:
     environment:
       name: github-pages
@@ -47,3 +47,5 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+        with:
+          artifact_path: ./dist  # Deploy from the dist folder where the Vite build is output
