@@ -15,7 +15,7 @@ export const Auth: React.FC = () => {
 
   useEffect(() => {
     if (session) {
-      const from = (location.state as { from?: { pathname: string } })?.from?.pathname || '/';
+      const from = (location.state as { from?: { pathname: string } })?.from?.pathname || '/taskflow_v2';
       navigate(from, { replace: true });
     }
   }, [session, navigate, location]);
