@@ -101,7 +101,7 @@ export const Dashboard: React.FC = () => {
     workspace,
   }) => (
     <div
-      onClick={() => navigate(`/workspace/${workspace.id}`)}
+      onClick={() => navigate(`/taskflow_v2/workspace/${workspace.id}`)}
       className="block bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 hover:shadow-lg dark:hover:shadow-2xl dark:hover:shadow-purple-500/5 hover:border-purple-200 dark:hover:border-purple-500/30 transition-all duration-200 group"
     >
       <div className="p-6">
@@ -137,7 +137,7 @@ export const Dashboard: React.FC = () => {
     workspace,
   }) => (
     <div
-      onClick={() => navigate(`/workspace/${workspace.id}`)}
+      onClick={() => navigate(`/taskflow_v2/workspace/${workspace.id}`)}
       className="flex items-center justify-between p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl hover:shadow-md dark:hover:shadow-2xl dark:hover:shadow-purple-500/5 hover:border-purple-200 dark:hover:border-purple-500/30 transition-all duration-200 group"
     >
       <div className="flex items-center flex-1 min-w-0">
