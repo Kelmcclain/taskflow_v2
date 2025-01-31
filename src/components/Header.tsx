@@ -35,7 +35,7 @@ const Header: React.FC<HeaderProps> = ({
                 </div>
                 <div className="ml-3 flex flex-col">
                   <span className="text-xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 dark:from-indigo-400 dark:via-purple-400 dark:to-pink-400 bg-clip-text text-transparent">
-                    Task Manager
+                    Taskflow
                   </span>
                   <span className="text-xs text-gray-500 dark:text-gray-400 tracking-wider">WORKSPACE</span>
                 </div>
