@@ -1,7 +1,7 @@
-import React from 'react';
-import { format } from 'date-fns';
-import { CheckCircle, Clock, Circle, Users, Calendar } from 'lucide-react';
-import { Task } from '../../types/workspace';
+import React from "react";
+import { format } from "date-fns";
+import { CheckCircle, Clock, Circle, Users, Calendar } from "lucide-react";
+import { Task } from "../../types/workspace";
 
 interface TaskListProps {
   tasks: Task[];
@@ -20,10 +20,14 @@ export const TaskList: React.FC<TaskListProps> = ({
 }) => {
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'done':
-        return <CheckCircle className="h-5 w-5 text-green-500 dark:text-green-400" />;
-      case 'in_progress':
-        return <Clock className="h-5 w-5 text-yellow-500 dark:text-yellow-400" />;
+      case "done":
+        return (
+          <CheckCircle className="h-5 w-5 text-green-500 dark:text-green-400" />
+        );
+      case "in_progress":
+        return (
+          <Clock className="h-5 w-5 text-yellow-500 dark:text-yellow-400" />
+        );
       default:
         return <Circle className="h-5 w-5 text-gray-400 dark:text-gray-500" />;
     }
@@ -31,30 +35,33 @@ export const TaskList: React.FC<TaskListProps> = ({
 
   const getPriorityClasses = (priority: string) => {
     switch (priority) {
-      case 'high':
-        return 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300';
-      case 'medium':
-        return 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300';
+      case "high":
+        return "bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300";
+      case "medium":
+        return "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300";
       default:
-        return 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300';
+        return "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300";
     }
   };
 
   const filteredTasks = tasks.filter((task) => {
-    const statusMatch = statusFilter === 'all' || task.status === statusFilter;
-    const priorityMatch = priorityFilter === 'all' || task.priority === priorityFilter;
-    const assigneeMatch = 
-      assigneeFilter === 'all' || 
-      (assigneeFilter === 'unassigned' && !task.assignee_id) ||
+    const statusMatch = statusFilter === "all" || task.status === statusFilter;
+    const priorityMatch =
+      priorityFilter === "all" || task.priority === priorityFilter;
+    const assigneeMatch =
+      assigneeFilter === "all" ||
+      (assigneeFilter === "unassigned" && !task.assignee_id) ||
       task.assignee_id === assigneeFilter;
-      
+
     return statusMatch && priorityMatch && assigneeMatch;
   });
 
   if (filteredTasks.length === 0) {
     return (
       <div className="text-center py-12">
-        <p className="text-gray-500 dark:text-gray-400">No tasks match your filters</p>
+        <p className="text-gray-500 dark:text-gray-400">
+          No tasks match your filters
+        </p>
       </div>
     );
   }
@@ -93,9 +100,9 @@ export const TaskList: React.FC<TaskListProps> = ({
                 </div>
               )}
               {task.due_date && (
-                <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-700/50 px-2 py-1 rounded-md">
+                <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-700/50 px-2 py-1 rounded-md whitespace-nowrap">
                   <Calendar className="h-4 w-4 mr-1.5" />
-                  <span>{format(new Date(task.due_date), 'MMM d, yyyy')}</span>
+                  <span>{format(new Date(task.due_date), "MMM d, yyyy")}</span>
                 </div>
               )}
               <span
