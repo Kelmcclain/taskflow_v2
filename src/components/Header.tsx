@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { LayoutGrid, LogOut, Moon, Sun, Bell, Settings } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
+import { LayoutGrid, LogOut, Moon, Sun, Bell, Settings, Menu, X } from 'lucide-react';
 
 interface HeaderProps {
   user: { email: string } | null;
   theme: 'light' | 'dark';
   onSignOut: () => void;
   onToggleTheme: () => void;
+  isMobileMenuOpen?: boolean;
+  onMobileMenuToggle?: () => void;
 }
 
 const Header: React.FC<HeaderProps> = ({
@@ -14,8 +16,12 @@ const Header: React.FC<HeaderProps> = ({
   theme,
   onSignOut,
   onToggleTheme,
+  isMobileMenuOpen,
+  onMobileMenuToggle,
 }) => {
   const [isNotificationHovered, setIsNotificationHovered] = useState(false);
+  const location = useLocation();
+  const isWorkspacePage = location.pathname.includes('/workspace/');
 
   return (
     <div className="fixed top-0 left-0 right-0 z-50">
@@ -25,7 +31,20 @@ const Header: React.FC<HeaderProps> = ({
       <nav className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl shadow-lg dark:shadow-gray-900/50">
         <div className="max-w-7xl mx-auto">
           <div className="flex justify-between h-16 px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center">
+            <div className="flex items-center space-x-4">
+              {isWorkspacePage && (
+                <button
+                  onClick={onMobileMenuToggle}
+                  className="lg:hidden p-2 -ml-2 rounded-lg text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                >
+                  {isMobileMenuOpen ? (
+                    <X className="h-6 w-6" />
+                  ) : (
+                    <Menu className="h-6 w-6" />
+                  )}
+                </button>
+              )}
+              
               <Link to="/taskflow_v2" className="flex items-center group">
                 <div className="relative">
                   <div className="absolute -inset-2 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-lg opacity-0 group-hover:opacity-100 blur transition-opacity duration-300" />

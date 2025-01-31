@@ -1,6 +1,6 @@
-import React from 'react';
-import { Filter } from 'lucide-react';
-import { Member } from '../../types/workspace';
+import React from "react";
+import { Filter } from "lucide-react";
+import { Member } from "../../types/workspace";
 
 interface TaskFiltersProps {
   statusFilter: string;
@@ -34,15 +34,21 @@ export const TaskFilters: React.FC<TaskFiltersProps> = ({
   `;
 
   return (
-    <div className="mb-6 bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 backdrop-blur-sm backdrop-filter">
-      <div className="p-4">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-6">
-          <div className="flex items-center text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-700/50 px-3 py-1.5 rounded-md">
+    <div
+      className="mb-6 bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 
+      dark:border-gray-700 backdrop-blur-sm backdrop-filter"
+    >
+      <div className="p-3 sm:p-4">
+        <div className="flex flex-col space-y-4">
+          <div
+            className="flex items-center text-gray-500 dark:text-gray-400 
+            bg-gray-50 dark:bg-gray-700/50 px-3 py-1.5 rounded-md w-fit"
+          >
             <Filter className="h-4 w-4 mr-2" />
             <span className="text-sm font-medium">Filters</span>
           </div>
-          
-          <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
             <div className="space-y-1.5">
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 Status

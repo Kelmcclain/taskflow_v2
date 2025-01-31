@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useParams } from "react-router-dom";
 import { Task, Member } from "../../types/workspace";
 import { useWorkspace } from "../../hooks/useWorkspace";
@@ -9,6 +9,7 @@ import { TaskSidebar } from "./sidebar/TaskSidebar";
 import { ManageWorkspaceMembersModal } from "./sidebar/manage_workspace_modal/ManageWorkspaceMembersModal";
 import { supabase } from "../../lib/supabase";
 import { Loader2 } from "lucide-react";
+import { MobileMenuContext } from "../Layout";
 
 export const Workspace: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -21,11 +22,11 @@ export const Workspace: React.FC = () => {
   const [isMembersModalOpen, setIsMembersModalOpen] = useState(false);
   const [members, setMembers] = useState<Member[]>([]);
   const [sidebarClosing, setSidebarClosing] = useState(false);
+  const { isMobileMenuOpen } = useContext(MobileMenuContext);
 
   useEffect(() => {
     const fetchMembers = async () => {
       if (!workspace) return;
-      
 
       const { data: membersData, error: membersError } = await supabase
         .from("workspace_members")
@@ -129,18 +130,18 @@ export const Workspace: React.FC = () => {
   };
 
   return (
-    <div className="flex bg-gray-50 dark:bg-gray-900 h-[calc(100vh-64px)] transition-colors duration-300">
+    <div className="flex flex-col lg:flex-row bg-gray-50 dark:bg-gray-900 h-[calc(100vh-64px)] transition-colors duration-300">
       <WorkspaceSidebar
         workspace={workspace}
         onAddTask={handleAddTask}
         onManageMembers={() => setIsMembersModalOpen(true)}
+        isMobileMenuOpen={isMobileMenuOpen}
       />
 
-      <div className="flex-1 flex overflow-hidden pl-64 h-full">
+      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden lg:pl-64">
         <div
-          className={`will-change-width transition-[width] duration-300 ease-in-out p-6 overflow-auto ${
-            selectedTask ? "w-1/2" : "w-full"
-          }`}
+          className={`will-change-width transition-[width] duration-300 ease-in-out p-4 md:p-6 overflow-auto
+            ${selectedTask ? 'lg:w-1/2' : 'w-full'}`}
         >
           <TaskFilters
             statusFilter={statusFilter}
@@ -163,10 +164,10 @@ export const Workspace: React.FC = () => {
 
         {selectedTask && (
           <div
-            key={selectedTask.id || "new"} // Add key to force re-render
-            className={`w-1/2 overflow-auto h-full transform transition-transform duration-200 ease-in-out ${
-              sidebarClosing ? "translate-x-full" : "translate-x-0"
-            }`}
+            key={selectedTask.id || "new"}
+            className={`fixed inset-0 lg:relative lg:w-1/2 overflow-auto h-full z-50 lg:z-auto
+              transform transition-transform duration-200 ease-in-out bg-white dark:bg-gray-900
+              ${sidebarClosing ? 'translate-x-full' : 'translate-x-0'}`}
           >
             <TaskSidebar
               task={selectedTask}

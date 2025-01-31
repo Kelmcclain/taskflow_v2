@@ -143,12 +143,12 @@ export const TaskSidebar: React.FC<TaskSidebarProps> = ({
       }
     }
   };
-
+  
   return (
-    <div className="h-full border-l border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 animate-slideIn">
-      <div className="h-full flex flex-col">
+    <div className="h-full border-l border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+      <div className="h-full flex flex-col max-w-2xl mx-auto lg:mx-0">
         <div className="flex-1 overflow-y-auto">
-          <div className="p-8">
+          <div className="p-4 sm:p-6 lg:p-8">
             <TaskHeader isNew={isNewTask} onClose={onClose} />
             {error && (
               <div className="mb-4 p-3 text-sm text-red-600 bg-red-100 rounded-md">
@@ -162,7 +162,7 @@ export const TaskSidebar: React.FC<TaskSidebarProps> = ({
             />
           </div>
         </div>
-        <div className="border-t border-gray-200 dark:border-gray-700 p-8">
+        <div className="border-t border-gray-200 dark:border-gray-700 p-4 sm:p-6 lg:p-8">
           <TaskActions
             isNew={isNewTask}
             loading={loading}

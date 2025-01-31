@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Loader2, Mail, Lock, LayoutGrid } from 'lucide-react';
 
-export const Auth: React.FC = () => {
+export const Auth = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
@@ -20,6 +20,55 @@ export const Auth: React.FC = () => {
     }
   }, [session, navigate, location]);
 
+  const getErrorMessage = (err: { code?: string }) => {
+    if (!err?.code) return 'An unexpected error occurred';
+    
+    // Handle specific error codes
+    if (err.code.includes('invalid_credentials')) {
+      return 'Invalid email or password. Please try again.';
+    }
+    if (err.code.includes('user_not_found')) {
+      return 'No account found with this email. Please sign up first.';
+    }
+    if (err.code.includes('email_exists')) {
+      return 'An account with this email already exists. Please sign in instead.';
+    }
+    if (err.code.includes('weak_password')) {
+      return 'Password is too weak. Please use a stronger password with at least 6 characters.';
+    }
+    if (err.code.includes('signup_disabled')) {
+      return 'Sign ups are currently disabled. Please contact support.';
+    }
+    if (err.code.includes('too_many_requests') || err.code.includes('429')) {
+      return 'Too many attempts. Please try again in a few minutes.';
+    }
+    if (err.code.includes('email_not_confirmed')) {
+      return 'Please verify your email address before signing in.';
+    }
+    if (err.code.includes('user_banned')) {
+      return 'This account has been temporarily suspended. Please contact support.';
+    }
+    if (err.code.includes('validation_failed')) {
+      if (err.code.includes('email')) {
+        return 'Please enter a valid email address.';
+      }
+      if (err.code.includes('password')) {
+        return 'Password must be at least 6 characters long.';
+      }
+      return 'Please check your input and try again.';
+    }
+
+    // Server/connection errors
+    if (err.code.includes('500')) {
+      return 'Server error. Please try again later.';
+    }
+    if (err.code.includes('network') || err.code.includes('connection')) {
+      return 'Connection error. Please check your internet connection.';
+    }
+
+    return 'An error occurred. Please try again.';
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -28,23 +77,14 @@ export const Auth: React.FC = () => {
     try {
       if (isSignUp) {
         await signUp(email, password);
-        setError('Account created! You can now sign in.');
+        setError('Account created! Please check your email for verification.');
         setIsSignUp(false);
       } else {
         await signIn(email, password);
       }
-    } catch (err) {
-      if (err instanceof Error) {
-        if (err.message.includes('invalid_credentials')) {
-          setError('Invalid email or password. Please try again.');
-        } else if (err.message.includes('email')) {
-          setError('Please enter a valid email address.');
-        } else if (err.message.includes('password')) {
-          setError('Password must be at least 6 characters long.');
-        } else {
-          setError('An error occurred. Please try again.');
-        }
-      }
+    } catch (err: unknown) {
+      const errorMessage = getErrorMessage(err as { code?: string });
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -68,12 +108,10 @@ export const Auth: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4 transition-colors">
       <div className="relative w-full max-w-md">
-        {/* Decorative elements */}
         <div className="absolute -top-20 -left-20 w-40 h-40 bg-purple-500/10 rounded-full blur-3xl" />
         <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-purple-500/10 rounded-full blur-3xl" />
         
         <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-xl shadow-gray-200/50 dark:shadow-none border border-gray-200 dark:border-gray-700 backdrop-blur-sm">
-          {/* Header */}
           <div className="p-8 text-center">
             <div className="inline-flex items-center justify-center p-3 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-lg shadow-purple-500/30 mb-4 group">
               <LayoutGrid className="w-6 h-6 text-white transform group-hover:scale-110 transition-transform" />
@@ -90,7 +128,7 @@ export const Auth: React.FC = () => {
             <form onSubmit={handleSubmit} className="space-y-5">
               {error && (
                 <div className={`p-4 rounded-xl text-sm font-medium animate-fade-in ${
-                  error.includes('created') 
+                  error.includes('created') || error.includes('verification')
                     ? 'bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400'
                     : 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400'
                 }`}>

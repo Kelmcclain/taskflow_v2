@@ -77,11 +77,12 @@ export const TaskList: React.FC<TaskListProps> = ({
             hover:border-purple-200 dark:hover:border-purple-500/30
             transition-all duration-200 cursor-pointer"
         >
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between space-y-3 sm:space-y-0">
             <div className="flex items-start space-x-4">
               <div className="mt-1">{getStatusIcon(task.status)}</div>
               <div className="flex-1 min-w-0">
-                <h3 className="text-sm font-medium text-gray-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
+                <h3 className="text-sm font-medium text-gray-900 dark:text-white group-hover:text-purple-600 
+                  dark:group-hover:text-purple-400 transition-colors">
                   {task.title}
                 </h3>
                 {task.description && (
@@ -92,23 +93,24 @@ export const TaskList: React.FC<TaskListProps> = ({
               </div>
             </div>
 
-            <div className="flex items-center space-x-4 ml-4">
+            <div className="flex flex-wrap items-center gap-2 sm:ml-4">
               {task.assignee_id && (
-                <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-700/50 px-2 py-1 rounded-md">
+                <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 
+                  bg-gray-50 dark:bg-gray-700/50 px-2 py-1 rounded-md">
                   <Users className="h-4 w-4 mr-1.5" />
                   <span>Assigned</span>
                 </div>
               )}
               {task.due_date && (
-                <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-700/50 px-2 py-1 rounded-md whitespace-nowrap">
+                <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 
+                  bg-gray-50 dark:bg-gray-700/50 px-2 py-1 rounded-md whitespace-nowrap">
                   <Calendar className="h-4 w-4 mr-1.5" />
                   <span>{format(new Date(task.due_date), "MMM d, yyyy")}</span>
                 </div>
               )}
               <span
-                className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium uppercase tracking-wide ${getPriorityClasses(
-                  task.priority
-                )}`}
+                className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium 
+                  uppercase tracking-wide ${getPriorityClasses(task.priority)}`}
               >
                 {task.priority}
               </span>

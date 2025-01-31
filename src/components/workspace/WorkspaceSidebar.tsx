@@ -1,20 +1,30 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Users, Plus, Layout } from 'lucide-react';
 import { Workspace } from '../../types/workspace';
+import { MobileMenuContext } from '../Layout';
 
 interface WorkspaceSidebarProps {
   workspace: Workspace;
   onAddTask: () => void;
   onManageMembers: () => void;
+  isMobileMenuOpen: boolean;
 }
 
 export const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
   workspace,
   onAddTask,
   onManageMembers,
+  isMobileMenuOpen,
 }) => {
-  return (
-    <div className="w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 fixed top-16 bottom-0 transition-colors">
+  const { setIsMobileMenuOpen } = useContext(MobileMenuContext);
+
+  const handleOverlayClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsMobileMenuOpen(false);
+  };
+
+  const SidebarContent = () => (
+    <>
       <div className="p-6">
         <h1 className="text-xl font-bold text-gray-900 dark:text-white mb-2">{workspace.name}</h1>
         {workspace.description && (
@@ -47,6 +57,36 @@ export const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
           <span>Workspace Settings</span>
         </div>
       </div>
-    </div>
+    </>
+  );
+
+  return (
+    <>
+      {/* Desktop Sidebar */}
+      <div className="hidden lg:block w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 fixed top-16 bottom-0 transition-colors">
+        <SidebarContent />
+      </div>
+
+      {/* Mobile Sidebar */}
+      <div
+        className={`lg:hidden fixed inset-0 z-20 transition-transform transform duration-300 ease-in-out ${
+          isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
+      >
+        {/* Overlay */}
+        <div
+          className="absolute inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
+          onClick={handleOverlayClick}
+          aria-hidden="true"
+        />
+
+        {/* Sidebar Content */}
+        <div className="relative w-64 h-full bg-white dark:bg-gray-800 shadow-xl">
+          <SidebarContent />
+        </div>
+      </div>
+    </>
   );
 };
+
+export default WorkspaceSidebar;
