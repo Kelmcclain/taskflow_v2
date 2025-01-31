@@ -1,19 +1,44 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import { RealtimeChannel } from "@supabase/supabase-js";
 import { supabase } from "../lib/supabase";
-import { Task, Workspace, WorkspaceMember } from "../types";
+import {
+  Task,
+  Workspace,
+  WorkspaceMember,
+  WorkspaceWithMembers,
+} from "../types";
+import { useAuth } from "./AuthContext";
 
 interface WorkspaceContextType {
+  workspaces: WorkspaceWithMembers[];
   currentWorkspace: Workspace | null;
   workspaceMembers: WorkspaceMember[];
   tasks: Task[];
   isLoading: boolean;
+  userPermissions: Record<string, boolean>;
+  deleteWorkspace: (workspaceId: string) => Promise<void>;
+  checkDeletePermission: (workspaceId: string) => Promise<boolean>;
+  fetchWorkspaces: () => Promise<void>;
   fetchWorkspace: (id: string) => Promise<void>;
   updateTask: (taskId: string, updates: Partial<Task>) => Promise<void>;
   createTask: (newTask: Partial<Task>) => Promise<void>;
   deleteTask: (taskId: string) => Promise<void>;
   addWorkspaceMember: (email: string, role?: string) => Promise<void>;
   removeWorkspaceMember: (userId: string) => Promise<void>;
+  checkUserRole: (
+    workspaceId: string,
+    userId: string
+  ) => Promise<string | null>;
+  updateWorkspace: (
+    workspaceId: string,
+    updates: Partial<Workspace>
+  ) => Promise<void>;
 }
 
 const WorkspaceContext = createContext<WorkspaceContextType | undefined>(
@@ -23,6 +48,8 @@ const WorkspaceContext = createContext<WorkspaceContextType | undefined>(
 export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
+  const { user } = useAuth();
+  const [workspaces, setWorkspaces] = useState<WorkspaceWithMembers[]>([]);
   const [currentWorkspace, setCurrentWorkspace] = useState<Workspace | null>(
     null
   );
@@ -32,12 +59,68 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [channel, setChannel] = useState<RealtimeChannel | null>(null);
+  const [userPermissions, setUserPermissions] = useState<
+    Record<string, boolean>
+  >({});
+
+  const checkDeletePermission = useCallback(
+    async (workspaceId: string) => {
+      if (!user) return false;
+
+      // First check cache
+      if (Object.prototype.hasOwnProperty.call(userPermissions, workspaceId)) {
+        return userPermissions[workspaceId];
+      }
+
+      // Check if user is super admin
+      const { data: userData } = await supabase
+        .from("users")
+        .select("is_super_admin")
+        .eq("id", user.id)
+        .single();
+
+      if (userData?.is_super_admin) {
+        setUserPermissions((prev) => ({ ...prev, [workspaceId]: true }));
+        return true;
+      }
+
+      // Check if user is workspace owner
+      const { data: memberData } = await supabase
+        .from("workspace_members")
+        .select("role")
+        .eq("workspace_id", workspaceId)
+        .eq("user_id", user.id)
+        .eq("role", "owner")
+        .maybeSingle();
+
+      const canDelete = !!memberData;
+      setUserPermissions((prev) => ({ ...prev, [workspaceId]: canDelete }));
+      return canDelete;
+    },
+    [user, userPermissions]
+  );
+
+  const checkUserRole = async (workspaceId: string, userId: string) => {
+    const { data, error } = await supabase
+      .from("workspace_members")
+      .select("role")
+      .eq("workspace_id", workspaceId)
+      .eq("user_id", userId)
+      .maybeSingle();
+
+    if (error) {
+      console.error("Error checking role:", error);
+      return null;
+    }
+
+    return data?.role || null;
+  };
 
   const fetchWorkspaceMembers = async (workspaceId: string) => {
-    // First get the workspace members with user data in a single query
     const { data: members, error: membersError } = await supabase
       .from("workspace_members")
-      .select(`
+      .select(
+        `
         *,
         user:users!inner (
           id,
@@ -45,7 +128,8 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({
           raw_user_meta_data,
           is_super_admin
         )
-      `)
+      `
+      )
       .eq("workspace_id", workspaceId);
 
     if (membersError) {
@@ -53,7 +137,7 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({
       return;
     }
 
-    setWorkspaceMembers(members);
+    setWorkspaceMembers(members || []);
   };
 
   const setupRealtimeSubscription = (workspaceId: string) => {
@@ -96,8 +180,19 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({
           filter: `workspace_id=eq.${workspaceId}`,
         },
         () => {
-          // Refresh members list on any change
           fetchWorkspaceMembers(workspaceId);
+        }
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "workspaces",
+          filter: `id=eq.${workspaceId}`,
+        },
+        (payload) => {
+          setCurrentWorkspace(payload.new as Workspace);
         }
       )
       .subscribe();
@@ -105,10 +200,77 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({
     setChannel(newChannel);
   };
 
+  const fetchWorkspaces = useCallback(async () => {
+    if (!user) return;
+
+    setIsLoading(true);
+    try {
+      // Get user's super admin status first
+      const { data: userData } = await supabase
+        .from("users")
+        .select("is_super_admin")
+        .eq("id", user.id)
+        .single();
+
+      // Fetch workspaces with member counts and owner info separately
+      const { data: workspaces, error } = await supabase
+        .from("workspaces")
+        .select(
+          `
+          *,
+          members:workspace_members(count),
+          workspace_members!inner (
+            role,
+            user_id
+          )
+        `
+        )
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+
+      // Process permissions for all workspaces at once
+      const permissions: Record<string, boolean> = {};
+      workspaces?.forEach((workspace) => {
+        permissions[workspace.id] =
+          userData?.is_super_admin ||
+          workspace.workspace_members.some(
+            (member: { user_id: string; role: string }) =>
+              member.user_id === user.id && member.role === "owner"
+          );
+      });
+
+      setWorkspaces(workspaces || []);
+      setUserPermissions(permissions);
+    } catch (error) {
+      console.error("Error fetching workspaces:", error);
+      setWorkspaces([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (user) {
+      fetchWorkspaces();
+    } else {
+      setWorkspaces([]);
+    }
+  }, [user, fetchWorkspaces]);
+
   const fetchWorkspace = async (id: string) => {
     setIsLoading(true);
     try {
-      // Fetch workspace details
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) throw new Error("No user logged in");
+
+      const role = await checkUserRole(id, user.id);
+      if (!role) {
+        throw new Error("Unauthorized: Not a member of this workspace");
+      }
+
       const { data: workspace, error: workspaceError } = await supabase
         .from("workspaces")
         .select("*")
@@ -118,22 +280,21 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({
       if (workspaceError) throw workspaceError;
       setCurrentWorkspace(workspace);
 
-      // Fetch workspace members with user details
       await fetchWorkspaceMembers(id);
 
-      // Fetch tasks
       const { data: tasks, error: tasksError } = await supabase
         .from("tasks")
         .select("*")
-        .eq("workspace_id", id);
+        .eq("workspace_id", id)
+        .order("created_at", { ascending: false });
 
       if (tasksError) throw tasksError;
-      setTasks(tasks);
+      setTasks(tasks || []);
 
-      // Setup realtime subscription
       setupRealtimeSubscription(id);
     } catch (error) {
       console.error("Error fetching workspace data:", error);
+      throw error;
     } finally {
       setIsLoading(false);
     }
@@ -157,10 +318,20 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({
     if (error) throw error;
   };
 
+  const updateWorkspace = async (
+    workspaceId: string,
+    updates: Partial<Workspace>
+  ) => {
+    const { error } = await supabase
+      .from("workspaces")
+      .update(updates)
+      .eq("id", workspaceId);
+    if (error) throw error;
+  };
+
   const addWorkspaceMember = async (email: string, role: string = "member") => {
     if (!currentWorkspace) return;
 
-    // First, get the user ID from the email using the public.users view
     const { data: userData, error: userError } = await supabase
       .from("users")
       .select("id")
@@ -169,7 +340,6 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({
 
     if (userError) throw userError;
 
-    // Then add the member
     const { error } = await supabase.from("workspace_members").insert([
       {
         workspace_id: currentWorkspace.id,
@@ -184,6 +354,17 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({
   const removeWorkspaceMember = async (userId: string) => {
     if (!currentWorkspace) return;
 
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) throw new Error("No user logged in");
+
+    // Check if the user is an owner
+    const role = await checkUserRole(currentWorkspace.id, user.id);
+    if (role !== "owner") {
+      throw new Error("Only workspace owners can remove members");
+    }
+
     const { error } = await supabase
       .from("workspace_members")
       .delete()
@@ -192,6 +373,15 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({
 
     if (error) throw error;
   };
+
+  const deleteWorkspace = useCallback(async (workspaceId: string) => {
+    const { error } = await supabase
+      .from("workspaces")
+      .delete()
+      .eq("id", workspaceId);
+
+    if (error) throw error;
+  }, []);
 
   useEffect(() => {
     return () => {
@@ -202,16 +392,23 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({
   }, []);
 
   const value = {
+    workspaces,
     currentWorkspace,
     workspaceMembers,
     tasks,
     isLoading,
+    fetchWorkspaces,
     fetchWorkspace,
     updateTask,
     createTask,
     deleteTask,
     addWorkspaceMember,
     removeWorkspaceMember,
+    checkUserRole,
+    updateWorkspace,
+    userPermissions,
+    checkDeletePermission,
+    deleteWorkspace,
   };
 
   return (

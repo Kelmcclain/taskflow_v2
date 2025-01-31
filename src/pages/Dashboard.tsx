@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "../lib/supabase";
 import { WorkspaceWithMembers } from "../types";
 import {
   Calendar,
@@ -15,78 +14,17 @@ import {
 } from "lucide-react";
 import { CreateWorkspaceModal } from "../components/CreateWorkspaceModal";
 import { format } from "date-fns";
+import { DeleteWorkspaceButton } from "../components/DeleteWorkspaceButton";
+import { useWorkspace } from "../contexts/WorkspaceContext";
 
 export const Dashboard: React.FC = () => {
-  const [workspaces, setWorkspaces] = useState<WorkspaceWithMembers[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { workspaces, isLoading } = useWorkspace();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(1);
   const navigate = useNavigate();
   const perPage = 12;
-
-  useEffect(() => {
-    const fetchWorkspaces = async () => {
-      const { data, error } = await supabase
-        .from("workspaces")
-        .select("*, workspace_members(count)")
-        .order("created_at", { ascending: false });
-
-      if (error) {
-        console.error("Error fetching workspaces:", error);
-      } else {
-        setWorkspaces(data || []);
-      }
-      setLoading(false);
-    };
-
-    fetchWorkspaces();
-
-    const workspaceSubscription = supabase
-      .channel("workspace-changes")
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "auth",
-          table: "workspaces",
-        },
-        async (payload) => {
-          if (
-            payload.eventType === "INSERT" ||
-            payload.eventType === "UPDATE"
-          ) {
-            const { data } = await supabase
-              .from("workspaces")
-              .select("*, workspace_members(count)")
-              .eq("id", payload.new.id)
-              .single();
-
-            if (data) {
-              if (payload.eventType === "INSERT") {
-                setWorkspaces((current) => [data, ...current]);
-              } else {
-                setWorkspaces((current) =>
-                  current.map((workspace) =>
-                    workspace.id === data.id ? data : workspace
-                  )
-                );
-              }
-            }
-          } else if (payload.eventType === "DELETE") {
-            setWorkspaces((current) =>
-              current.filter((workspace) => workspace.id !== payload.old.id)
-            );
-          }
-        }
-      )
-      .subscribe();
-
-    return () => {
-      workspaceSubscription.unsubscribe();
-    };
-  }, []);
 
   const filteredWorkspaces = workspaces.filter(
     (workspace) =>
@@ -102,8 +40,14 @@ export const Dashboard: React.FC = () => {
   }) => (
     <div
       onClick={() => navigate(`/taskflow_v2/workspace/${workspace.id}`)}
-      className="block bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 hover:shadow-lg dark:hover:shadow-2xl dark:hover:shadow-purple-500/5 hover:border-purple-200 dark:hover:border-purple-500/30 transition-all duration-200 group"
+      className="block bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 hover:shadow-lg dark:hover:shadow-2xl dark:hover:shadow-purple-500/5 hover:border-purple-200 dark:hover:border-purple-500/30 transition-all duration-200 group relative"
     >
+      <div className="absolute top-2 right-2">
+        <DeleteWorkspaceButton
+          workspaceId={workspace.id}
+          workspaceName={workspace.name}
+        />
+      </div>
       <div className="p-6">
         <div className="flex items-center mb-4">
           <div className="p-2 bg-purple-50 dark:bg-purple-500/10 rounded-lg">
@@ -163,6 +107,10 @@ export const Dashboard: React.FC = () => {
         <div className="text-sm text-gray-500 dark:text-gray-400">
           {format(new Date(workspace.created_at), "MMM d, yyyy")}
         </div>
+        <DeleteWorkspaceButton
+          workspaceId={workspace.id}
+          workspaceName={workspace.name}
+        />
         <ChevronRight className="h-5 w-5 text-gray-400 group-hover:text-purple-500 transition-colors" />
       </div>
     </div>
@@ -218,7 +166,7 @@ export const Dashboard: React.FC = () => {
         </div>
       </div>
 
-      {loading ? (
+      {isLoading ? (
         <div className="flex justify-center items-center h-64">
           <Loader2 className="h-8 w-8 animate-spin text-purple-600 dark:text-purple-400" />
         </div>
@@ -249,7 +197,7 @@ export const Dashboard: React.FC = () => {
             </div>
           )}
 
-          {!loading && filteredWorkspaces.length === 0 && (
+          {!isLoading && filteredWorkspaces.length === 0 && (
             <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
               <Folder className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500" />
               <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">
