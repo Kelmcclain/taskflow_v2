@@ -22,6 +22,10 @@ interface WorkspaceContextType {
   tasks: Task[];
   isLoading: boolean;
   userPermissions: Record<string, boolean>;
+  createWorkspace: (data: {
+    name: string;
+    description?: string;
+  }) => Promise<void>;
   deleteWorkspace: (workspaceId: string) => Promise<void>;
   checkDeletePermission: (workspaceId: string) => Promise<boolean>;
   fetchWorkspaces: () => Promise<void>;
@@ -374,14 +378,43 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({
     if (error) throw error;
   };
 
-  const deleteWorkspace = useCallback(async (workspaceId: string) => {
-    const { error } = await supabase
-      .from("workspaces")
-      .delete()
-      .eq("id", workspaceId);
+  const deleteWorkspace = useCallback(
+    async (workspaceId: string) => {
+      const { error } = await supabase
+        .from("workspaces")
+        .delete()
+        .eq("id", workspaceId);
 
-    if (error) throw error;
-  }, []);
+      if (error) throw error;
+      setWorkspaces((prev) => prev.filter((ws) => ws.id !== workspaceId));
+    },
+    [setWorkspaces]
+  );
+
+  const createWorkspace = useCallback(
+    async (data: { name: string; description?: string }) => {
+      if (!user) return;
+
+      try {
+        const { data: workspace, error } = await supabase.rpc(
+          "create_workspace_with_owner",
+          {
+            workspace_name: data.name,
+            creator_id: user.id,
+            description: data.description || null,
+          }
+        );
+
+        if (error) throw error;
+
+        console.log("Created workspace:", workspace);
+        await fetchWorkspaces();
+      } catch (error) {
+        console.error("Error creating workspace:", error);
+      }
+    },
+    [user, fetchWorkspaces]
+  );
 
   useEffect(() => {
     return () => {
@@ -389,7 +422,7 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({
         channel.unsubscribe();
       }
     };
-  }, []);
+  });
 
   const value = {
     workspaces,
@@ -409,6 +442,7 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({
     userPermissions,
     checkDeletePermission,
     deleteWorkspace,
+    createWorkspace,
   };
 
   return (

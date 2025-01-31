@@ -26,7 +26,7 @@ const Header: React.FC<HeaderProps> = ({
         <div className="max-w-7xl mx-auto">
           <div className="flex justify-between h-16 px-4 sm:px-6 lg:px-8">
             <div className="flex items-center">
-              <Link to="/" className="flex items-center group">
+              <Link to="/taskflow_v2" className="flex items-center group">
                 <div className="relative">
                   <div className="absolute -inset-2 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-lg opacity-0 group-hover:opacity-100 blur transition-opacity duration-300" />
                   <div className="relative p-2 bg-white dark:bg-gray-800 rounded-lg transform transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-3">

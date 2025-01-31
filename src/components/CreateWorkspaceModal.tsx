@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { X, Loader2, Briefcase } from 'lucide-react';
-import { supabase } from '../lib/supabase';
-import { useAuth } from '../contexts/AuthContext';
+import { useState, useEffect } from "react";
+import { useWorkspace } from "../contexts/WorkspaceContext";
+import { Briefcase, X, Loader2 } from "lucide-react";
+
 
 interface CreateWorkspaceModalProps {
   isOpen: boolean;
@@ -15,9 +15,8 @@ export const CreateWorkspaceModal: React.FC<CreateWorkspaceModalProps> = ({
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [loading, setLoading] = useState(false);
-  const { user } = useAuth();
+  const { createWorkspace } = useWorkspace();
 
-  // Reset form when modal closes
   useEffect(() => {
     if (!isOpen) {
       setName('');
@@ -27,25 +26,12 @@ export const CreateWorkspaceModal: React.FC<CreateWorkspaceModalProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
-    
     setLoading(true);
     try {
-      const { data: workspace, error } = await supabase
-        .rpc('create_workspace_with_owner', { 
-          workspace_name: name,
-          creator_id: user.id,
-          description: description || null
-        });
-  
-      if (error) throw error;
-  
-      // Now you can use the workspace data
-      console.log('Created workspace:', workspace);
-      // You could pass this back to parent component
+      await createWorkspace({ name, description });
       onClose();
     } catch (error) {
-      console.error('Error creating workspace:', error);
+      console.error("Error creating workspace:", error);
     } finally {
       setLoading(false);
     }
