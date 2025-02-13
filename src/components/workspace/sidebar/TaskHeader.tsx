@@ -13,7 +13,7 @@ export const TaskHeader: React.FC<TaskHeaderProps> = ({ isNew, onClose }) => (
     </h2>
     <button
       onClick={onClose}
-      className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white transition-colors duration-200"
+      className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white transition-colors duration-100"
     >
       <X className="h-6 w-6" />
     </button>

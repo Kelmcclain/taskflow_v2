@@ -69,7 +69,7 @@ export const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
 
       {/* Mobile Sidebar */}
       <div
-        className={`lg:hidden fixed inset-0 z-20 transition-transform transform duration-300 ease-in-out ${
+        className={`lg:hidden fixed inset-0 z-20 transition-transform transform duration-100 ease-in-out ${
           isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >

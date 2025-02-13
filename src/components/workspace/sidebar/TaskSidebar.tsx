@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import { supabase } from '../../../lib/supabase';
@@ -89,7 +88,9 @@ export const TaskSidebar: React.FC<TaskSidebarProps> = ({
   };
 
   const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    // If it's description field, don't trim the HTML content
+    const processedValue = field === 'description' ? value : value;
+    setFormData(prev => ({ ...prev, [field]: processedValue }));
     if (error) setError(null);
   };
 
@@ -100,7 +101,7 @@ export const TaskSidebar: React.FC<TaskSidebarProps> = ({
     try {
       const taskData = {
         title: formData.title.trim(),
-        description: formData.description.trim(),
+        description: formData.description, // Don't trim HTML content
         status: formData.status,
         priority: formData.priority,
         assignee_id: formData.assignee_id || undefined,
@@ -146,9 +147,9 @@ export const TaskSidebar: React.FC<TaskSidebarProps> = ({
   
   return (
     <div className="h-full border-l border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
-      <div className="h-full flex flex-col max-w-2xl mx-auto lg:mx-0">
-        <div className="flex-1 overflow-y-auto">
-          <div className="p-4 sm:p-6 lg:p-8">
+      <div className="h-full flex flex-col mx-auto lg:mx-0">
+        <div className="overflow-y-auto">
+          <div className="p-4 sm:p-6 lg:px-4 lg:py-6">
             <TaskHeader isNew={isNewTask} onClose={onClose} />
             {error && (
               <div className="mb-4 p-3 text-sm text-red-600 bg-red-100 rounded-md">

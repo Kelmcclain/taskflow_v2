@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import { supabase } from '../lib/supabase';
-import { Task, Workspace } from '../types/workspace';
+import { useState, useEffect } from "react";
+import { supabase } from "../lib/supabase";
+import { Task, Workspace } from "../types/workspace";
 
 export const useWorkspace = (workspaceId: string) => {
   const [workspace, setWorkspace] = useState<Workspace | null>(null);
@@ -13,8 +13,16 @@ export const useWorkspace = (workspaceId: string) => {
 
       try {
         const [workspaceResponse, tasksResponse] = await Promise.all([
-          supabase.from('workspaces').select('*').eq('id', workspaceId).single(),
-          supabase.from('tasks').select('*').eq('workspace_id', workspaceId),
+          supabase
+            .from("workspaces")
+            .select("*")
+            .eq("id", workspaceId)
+            .single(),
+          supabase
+            .from("tasks")
+            .select("*")
+            .eq("workspace_id", workspaceId)
+            .order("created_at", { ascending: false }),
         ]);
 
         if (workspaceResponse.error) throw workspaceResponse.error;
@@ -23,7 +31,7 @@ export const useWorkspace = (workspaceId: string) => {
         setWorkspace(workspaceResponse.data);
         setTasks(tasksResponse.data);
       } catch (error) {
-        console.error('Error fetching workspace data:', error);
+        console.error("Error fetching workspace data:", error);
       } finally {
         setLoading(false);
       }
@@ -35,25 +43,25 @@ export const useWorkspace = (workspaceId: string) => {
     const channel = supabase
       .channel(`workspace-${workspaceId}`)
       .on(
-        'postgres_changes',
+        "postgres_changes",
         {
-          event: '*',
-          schema: 'public',
-          table: 'tasks',
+          event: "*",
+          schema: "public",
+          table: "tasks",
           filter: `workspace_id=eq.${workspaceId}`,
         },
         (payload) => {
-          console.log('Received real-time update:', payload);
-          
-          if (payload.eventType === 'INSERT') {
+          console.log("Received real-time update:", payload);
+
+          if (payload.eventType === "INSERT") {
             setTasks((currentTasks) => [...currentTasks, payload.new as Task]);
-          } else if (payload.eventType === 'UPDATE') {
+          } else if (payload.eventType === "UPDATE") {
             setTasks((currentTasks) =>
               currentTasks.map((task) =>
                 task.id === payload.new.id ? (payload.new as Task) : task
               )
             );
-          } else if (payload.eventType === 'DELETE') {
+          } else if (payload.eventType === "DELETE") {
             setTasks((currentTasks) =>
               currentTasks.filter((task) => task.id !== payload.old.id)
             );
@@ -67,10 +75,10 @@ export const useWorkspace = (workspaceId: string) => {
     };
   }, [workspaceId]);
 
-  const createTask = async (taskData: Omit<Task, 'id'>) => {
+  const createTask = async (taskData: Omit<Task, "id">) => {
     try {
       const { data, error } = await supabase
-        .from('tasks')
+        .from("tasks")
         .insert([taskData])
         .select()
         .single();
@@ -81,7 +89,7 @@ export const useWorkspace = (workspaceId: string) => {
       setTasks((currentTasks) => [...currentTasks, data as Task]);
       return data;
     } catch (error) {
-      console.error('Error creating task:', error);
+      console.error("Error creating task:", error);
       throw error;
     }
   };
@@ -89,9 +97,9 @@ export const useWorkspace = (workspaceId: string) => {
   const updateTask = async (taskId: string, updates: Partial<Task>) => {
     try {
       const { data, error } = await supabase
-        .from('tasks')
+        .from("tasks")
         .update(updates)
-        .eq('id', taskId)
+        .eq("id", taskId)
         .select()
         .single();
 
@@ -105,17 +113,14 @@ export const useWorkspace = (workspaceId: string) => {
       );
       return data;
     } catch (error) {
-      console.error('Error updating task:', error);
+      console.error("Error updating task:", error);
       throw error;
     }
   };
 
   const deleteTask = async (taskId: string) => {
     try {
-      const { error } = await supabase
-        .from('tasks')
-        .delete()
-        .eq('id', taskId);
+      const { error } = await supabase.from("tasks").delete().eq("id", taskId);
 
       if (error) throw error;
 
@@ -124,7 +129,7 @@ export const useWorkspace = (workspaceId: string) => {
         currentTasks.filter((task) => task.id !== taskId)
       );
     } catch (error) {
-      console.error('Error deleting task:', error);
+      console.error("Error deleting task:", error);
       throw error;
     }
   };
@@ -135,6 +140,6 @@ export const useWorkspace = (workspaceId: string) => {
     loading,
     createTask,
     updateTask,
-    deleteTask
+    deleteTask,
   };
 };

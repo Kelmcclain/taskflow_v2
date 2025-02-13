@@ -64,7 +64,7 @@ export const AddMemberForm: React.FC<AddMemberFormProps> = ({
                    shadow-lg shadow-purple-500/30 
                    hover:shadow-xl hover:shadow-purple-500/40 
                    disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-lg 
-                   transition-all duration-200 hover:-translate-y-0.5
+                   transition-all duration-100 hover:-translate-y-0.5
                    flex items-center min-w-[100px] justify-center"
         >
           {loading ? (

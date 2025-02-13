@@ -12,6 +12,7 @@ import {
   AlignLeft,
   Type
 } from 'lucide-react';
+import { RichTextEditor } from './RichTextEditor';
 
 interface TaskFormProps {
   formData: {
@@ -57,10 +58,10 @@ export const TaskForm: React.FC<TaskFormProps> = ({
   onChange,
   members,
 }) => {
-  const inputBaseClasses = "mt-1 block w-full rounded-lg border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 shadow-sm focus:border-purple-500 focus:ring-purple-500 dark:focus:border-purple-400 dark:focus:ring-purple-400 focus:ring-2 transition-all duration-200";
+  const inputBaseClasses = "mt-1 block w-full rounded-lg border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 shadow-sm focus:border-purple-500 focus:ring-purple-500 dark:focus:border-purple-400 dark:focus:ring-purple-400 focus:ring-2 transition-all duration-100";
   
   return (
-    <div className="space-y-8 p-6 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700">
+    <div className="space-y-8 p-2 lg:p-4 bg-white dark:bg-gray-900 rounded-xl">
       <TaskField 
         label="Title" 
         icon={<Type className="w-4 h-4 text-gray-400" />}
@@ -78,13 +79,12 @@ export const TaskForm: React.FC<TaskFormProps> = ({
         label="Description"
         icon={<AlignLeft className="w-4 h-4 text-gray-400" />}
       >
-        <textarea
-          value={formData.description}
-          onChange={(e) => onChange('description', e.target.value)}
-          rows={4}
-          className={`${inputBaseClasses} px-4 py-3 resize-none`}
-          placeholder="Add more details about this task..."
-        />
+        <div className="mt-1">
+          <RichTextEditor
+            value={formData.description}
+            onChange={(value) => onChange('description', value)}
+          />
+        </div>
       </TaskField>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

@@ -47,8 +47,8 @@ const Header: React.FC<HeaderProps> = ({
               
               <Link to="/taskflow_v2" className="flex items-center group">
                 <div className="relative">
-                  <div className="absolute -inset-2 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-lg opacity-0 group-hover:opacity-100 blur transition-opacity duration-300" />
-                  <div className="relative p-2 bg-white dark:bg-gray-800 rounded-lg transform transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-3">
+                  <div className="absolute -inset-2 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-lg opacity-0 group-hover:opacity-100 blur transition-opacity duration-100" />
+                  <div className="relative p-2 bg-white dark:bg-gray-800 rounded-lg transform transition-transform duration-100 group-hover:scale-110 group-hover:-rotate-3">
                     <LayoutGrid className="h-6 w-6 text-indigo-600 dark:text-purple-400" />
                   </div>
                 </div>
@@ -70,7 +70,7 @@ const Header: React.FC<HeaderProps> = ({
                     onMouseLeave={() => setIsNotificationHovered(false)}
                   >
                     <button className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors relative">
-                      <Bell className={`h-5 w-5 text-gray-500 dark:text-gray-400 transition-transform duration-300 ${isNotificationHovered ? 'rotate-12' : ''}`} />
+                      <Bell className={`h-5 w-5 text-gray-500 dark:text-gray-400 transition-transform duration-100 ${isNotificationHovered ? 'rotate-12' : ''}`} />
                       <span className="absolute top-1.5 right-1.5 h-2 w-2 bg-red-500 rounded-full ring-2 ring-white dark:ring-gray-800" />
                     </button>
                     {isNotificationHovered && (
@@ -119,7 +119,7 @@ const Header: React.FC<HeaderProps> = ({
                   onClick={onSignOut}
                   className="p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400 focus:outline-none transition-colors group relative"
                 >
-                  <LogOut className="h-5 w-5 transition-all duration-300 group-hover:-translate-x-1" />
+                  <LogOut className="h-5 w-5 transition-all duration-100 group-hover:-translate-x-1" />
                   <span className="absolute top-full right-0 mt-1 px-2 py-1 text-xs text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 rounded shadow-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
                     Sign out
                   </span>

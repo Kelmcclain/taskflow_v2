@@ -40,7 +40,7 @@ export const Dashboard: React.FC = () => {
   }) => (
     <div
       onClick={() => navigate(`/taskflow_v2/workspace/${workspace.id}`)}
-      className="block bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 hover:shadow-lg dark:hover:shadow-2xl dark:hover:shadow-purple-500/5 hover:border-purple-200 dark:hover:border-purple-500/30 transition-all duration-200 group relative"
+      className="block bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 hover:shadow-lg dark:hover:shadow-2xl dark:hover:shadow-purple-500/5 hover:border-purple-200 dark:hover:border-purple-500/30 transition-all duration-100 group relative"
     >
       <div className="absolute top-2 right-2">
         <DeleteWorkspaceButton
@@ -82,7 +82,7 @@ export const Dashboard: React.FC = () => {
   }) => (
     <div
       onClick={() => navigate(`/taskflow_v2/workspace/${workspace.id}`)}
-      className="flex items-center justify-between p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl hover:shadow-md dark:hover:shadow-2xl dark:hover:shadow-purple-500/5 hover:border-purple-200 dark:hover:border-purple-500/30 transition-all duration-200 group"
+      className="flex items-center justify-between p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl hover:shadow-md dark:hover:shadow-2xl dark:hover:shadow-purple-500/5 hover:border-purple-200 dark:hover:border-purple-500/30 transition-all duration-100 group"
     >
       <div className="flex items-center flex-1 min-w-0">
         <div className="p-2 bg-purple-50 dark:bg-purple-500/10 rounded-lg">
@@ -124,7 +124,7 @@ export const Dashboard: React.FC = () => {
         </h1>
         <button
           onClick={() => setIsCreateModalOpen(true)}
-          className="inline-flex items-center px-4 py-2 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 shadow-lg shadow-purple-500/30 hover:shadow-xl hover:shadow-purple-500/40 transition-all duration-200 hover:-translate-y-0.5"
+          className="inline-flex items-center px-4 py-2 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 shadow-lg shadow-purple-500/30 hover:shadow-xl hover:shadow-purple-500/40 transition-all duration-100 hover:-translate-y-0.5"
         >
           <Plus className="h-4 w-4 mr-2" />
           New Workspace

@@ -117,7 +117,7 @@ export const TaskFilters: React.FC<TaskFiltersProps> = ({
           rounded-lg
           text-left
           text-gray-900 dark:text-gray-100
-          transition-all duration-200
+          transition-all duration-100
           hover:border-purple-400 dark:hover:border-purple-500
           focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500
           dark:focus:ring-purple-400/20 dark:focus:border-purple-400
@@ -125,7 +125,7 @@ export const TaskFilters: React.FC<TaskFiltersProps> = ({
         `}
       >
         {value}
-        <div className={`absolute inset-y-0 right-0 flex items-center px-3 text-gray-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}>
+        <div className={`absolute inset-y-0 right-0 flex items-center px-3 text-gray-400 transition-transform duration-100 ${isOpen ? 'rotate-180' : ''}`}>
           <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
             <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
           </svg>
@@ -164,7 +164,7 @@ export const TaskFilters: React.FC<TaskFiltersProps> = ({
     rounded-lg
     text-gray-900 dark:text-gray-100
     appearance-none
-    transition-all duration-200
+    transition-all duration-100
     hover:border-purple-400 dark:hover:border-purple-500
     focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500
     dark:focus:ring-purple-400/20 dark:focus:border-purple-400
@@ -172,7 +172,7 @@ export const TaskFilters: React.FC<TaskFiltersProps> = ({
     cursor-pointer
   `;
 
-  const optionClasses = "flex items-center gap-2 px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer transition-colors duration-150";
+  const optionClasses = "flex items-center gap-2 px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer transition-colors duration-100";
 
   const statusOptions = [
     { value: "all", label: "All Status" },

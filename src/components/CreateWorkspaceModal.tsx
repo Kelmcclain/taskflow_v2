@@ -132,7 +132,7 @@ export const CreateWorkspaceModal: React.FC<CreateWorkspaceModalProps> = ({
                 <button
                   type="submit"
                   disabled={loading}
-                  className="px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 shadow-lg shadow-purple-500/30 hover:shadow-xl hover:shadow-purple-500/40 disabled:opacity-50 disabled:hover:shadow-lg transition-all duration-200 hover:-translate-y-0.5"
+                  className="px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 shadow-lg shadow-purple-500/30 hover:shadow-xl hover:shadow-purple-500/40 disabled:opacity-50 disabled:hover:shadow-lg transition-all duration-100 hover:-translate-y-0.5"
                 >
                   {loading ? (
                     <div className="flex items-center">

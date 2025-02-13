@@ -130,7 +130,7 @@ export const Workspace: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col lg:flex-row bg-gray-50 dark:bg-gray-900 h-[calc(100vh-64px)] transition-colors duration-300">
+    <div className="flex flex-col lg:flex-row bg-gray-50 dark:bg-gray-900 h-[calc(100vh-64px)] transition-colors duration-100">
       <WorkspaceSidebar
         workspace={workspace}
         onAddTask={handleAddTask}
@@ -140,8 +140,8 @@ export const Workspace: React.FC = () => {
 
       <div className="flex-1 flex flex-col lg:flex-row overflow-hidden lg:pl-64">
         <div
-          className={`will-change-width transition-[width] duration-300 ease-in-out p-4 md:p-6 overflow-auto
-            ${selectedTask ? 'lg:w-1/2' : 'w-full'}`}
+          className={`will-change-width transition-[width] duration-100 ease-in-out p-4 md:p-6 overflow-auto
+            ${selectedTask ? "lg:w-1/2" : "w-full"}`}
         >
           <TaskFilters
             statusFilter={statusFilter}
@@ -165,9 +165,9 @@ export const Workspace: React.FC = () => {
         {selectedTask && (
           <div
             key={selectedTask.id || "new"}
-            className={`fixed inset-0 lg:relative lg:w-1/2 overflow-auto h-full z-50 lg:z-auto
-              transform transition-transform duration-200 ease-in-out bg-white dark:bg-gray-900
-              ${sidebarClosing ? 'translate-x-full' : 'translate-x-0'}`}
+            className={`fixed inset-0 lg:relative lg:flex-1 overflow-auto h-full z-50 lg:z-auto
+      transform transition-transform duration-100 ease-in-out bg-white dark:bg-gray-900
+      ${sidebarClosing ? "translate-x-full" : "translate-x-0"}`}
           >
             <TaskSidebar
               task={selectedTask}

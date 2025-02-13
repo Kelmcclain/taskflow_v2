@@ -11,6 +11,14 @@ interface TaskListProps {
   onSelectTask: (task: Task) => void;
 }
 
+const stripHtml = (html: string) => {
+  // Create a temporary div element
+  const tempDiv = document.createElement('div');
+  tempDiv.innerHTML = html;
+  // Get the text content without HTML tags
+  return tempDiv.textContent || tempDiv.innerText || '';
+};
+
 export const TaskList: React.FC<TaskListProps> = ({
   tasks,
   statusFilter,
@@ -75,7 +83,7 @@ export const TaskList: React.FC<TaskListProps> = ({
           className="group bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 
             hover:shadow-lg dark:hover:shadow-2xl dark:hover:shadow-purple-500/5 
             hover:border-purple-200 dark:hover:border-purple-500/30
-            transition-all duration-200 cursor-pointer"
+            transition-all duration-100 cursor-pointer"
         >
           <div className="flex flex-col sm:flex-row sm:items-center justify-between space-y-3 sm:space-y-0">
             <div className="flex items-start space-x-4">
@@ -87,7 +95,7 @@ export const TaskList: React.FC<TaskListProps> = ({
                 </h3>
                 {task.description && (
                   <p className="mt-1 text-sm text-gray-500 dark:text-gray-400 line-clamp-2">
-                    {task.description}
+                    {stripHtml(task.description)}
                   </p>
                 )}
               </div>
