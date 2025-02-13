@@ -26,7 +26,11 @@ import {
   Indent,
   Outdent,
 } from "lucide-react";
-import colors from "./manage_workspace_modal/constants";
+import {
+  colors,
+  FONT_FAMILIES,
+  FONT_SIZES,
+} from "./manage_workspace_modal/constants";
 
 // Custom extension for font size
 declare module "@tiptap/core" {
@@ -102,24 +106,6 @@ type FontFamilyPickerProps = {
   editor: Editor;
 };
 
-const FONT_SIZES = [
-  "12px",
-  "14px",
-  "16px",
-  "18px",
-  "20px",
-  "24px",
-  "30px",
-  "36px",
-  "48px",
-];
-const FONT_FAMILIES = [
-  "Arial",
-  "Times New Roman",
-  "Courier New",
-  "Georgia",
-  "Verdana",
-];
 const TEXT_COLORS = colors;
 const BG_COLORS = colors;
 
@@ -195,46 +181,100 @@ const ColorPicker: React.FC<ColorPickerProps> = ({ onChange, type }) => {
   );
 };
 
-const FontSizePicker: React.FC<FontSizePickerProps> = ({ editor }) => (
-  <div className="relative group">
-    <MenuButton onClick={() => {}} tooltip="Font Size">
-      <Type className="w-4 h-4" />
-    </MenuButton>
-    <div className="absolute hidden group-hover:flex flex-col w-32 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-10 top-full left-0 mt-1">
-      {FONT_SIZES.map((size) => (
-        <button
-          key={size}
-          className="px-3 py-1.5 text-left hover:bg-gray-100 dark:hover:bg-gray-700"
-          onClick={() => {
-            editor.chain().focus().setFontSize(size).run();
-          }}
-        >
-          {size}
-        </button>
-      ))}
-    </div>
-  </div>
-);
+const FontSizePicker: React.FC<FontSizePickerProps> = ({ editor }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const pickerRef = useRef<HTMLDivElement>(null);
 
-const FontFamilyPicker: React.FC<FontFamilyPickerProps> = ({ editor }) => (
-  <div className="relative group">
-    <MenuButton onClick={() => {}} tooltip="Font Family">
-      <span className="text-sm">Font</span>
-    </MenuButton>
-    <div className="absolute hidden group-hover:flex flex-col w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-10 top-full left-0 mt-1">
-      {FONT_FAMILIES.map((font) => (
-        <button
-          key={font}
-          className="px-3 py-1.5 text-left hover:bg-gray-100 dark:hover:bg-gray-700"
-          style={{ fontFamily: font }}
-          onClick={() => editor.chain().focus().setFontFamily(font).run()}
-        >
-          {font}
-        </button>
-      ))}
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        pickerRef.current &&
+        !pickerRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  return (
+    <div className="relative" ref={pickerRef}>
+      <MenuButton onClick={() => setIsOpen(!isOpen)} tooltip="Font Size">
+        <Type className="w-4 h-4" />
+      </MenuButton>
+      <div
+        className={`absolute ${
+          isOpen ? "flex" : "hidden"
+        } flex-col w-32 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-10 top-full left-0 mt-1`}
+      >
+        {FONT_SIZES.map((size) => (
+          <button
+            key={size}
+            className="px-3 py-1.5 text-left hover:bg-gray-100 dark:hover:bg-gray-700"
+            onClick={() => {
+              editor.chain().focus().setFontSize(size).run();
+            }}
+          >
+            {size}
+          </button>
+        ))}
+      </div>
     </div>
-  </div>
-);
+  );
+};
+
+const FontFamilyPicker: React.FC<FontFamilyPickerProps> = ({ editor }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const pickerRef = useRef<HTMLDivElement>(null);
+    const activeFont = editor.getAttributes('textStyle').fontFamily;
+  
+    useEffect(() => {
+      const handleClickOutside = (event: MouseEvent) => {
+        if (
+          pickerRef.current &&
+          !pickerRef.current.contains(event.target as Node)
+        ) {
+          setIsOpen(false);
+        }
+      };
+  
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+  
+    return (
+      <div className="relative" ref={pickerRef}>
+        <MenuButton onClick={() => setIsOpen(!isOpen)} tooltip="Font Family">
+          <span className="text-sm" style={{ fontFamily: activeFont || 'inherit' }}>
+            {activeFont || 'Font'}
+          </span>
+        </MenuButton>
+        <div
+          className={`absolute ${
+            isOpen ? "flex" : "hidden"
+          } flex-col w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-10 top-full left-0 mt-1 max-h-64 overflow-y-auto`}
+        >
+          {FONT_FAMILIES.map((font) => (
+            <button
+              key={font}
+              className={`px-3 py-1.5 text-left hover:bg-gray-100 dark:hover:bg-gray-700 ${
+                activeFont === font ? 'bg-gray-100 dark:bg-gray-700' : ''
+              }`}
+              style={{ fontFamily: font }}
+              onClick={() => {
+                editor.chain().focus().setFontFamily(font).run();
+                setIsOpen(false);
+              }}
+            >
+              {font}
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  };
 
 export const RichTextEditor: React.FC<RichTextEditorProps> = ({
   value,
