@@ -27,9 +27,10 @@ import {
   Outdent,
 } from "lucide-react";
 import {
-  colors,
+    BG_COLORS,
   FONT_FAMILIES,
   FONT_SIZES,
+  TEXT_COLORS,
 } from "./manage_workspace_modal/constants";
 
 // Custom extension for font size
@@ -105,9 +106,6 @@ type FontSizePickerProps = {
 type FontFamilyPickerProps = {
   editor: Editor;
 };
-
-const TEXT_COLORS = colors;
-const BG_COLORS = colors;
 
 const MenuButton: React.FC<MenuButtonProps> = ({
   onClick,
