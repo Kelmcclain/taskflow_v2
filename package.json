@@ -5,9 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "prebuild": "node -e \"if (process.versions.node < '18.18.0') { console.error('Node version >= 18.18.0 is required'); process.exit(1); }\"",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "deploy": "npx wrangler pages deploy dist"
   },
   "dependencies": {
     "@prisma/client": "^6.3.0",

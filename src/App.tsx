@@ -18,9 +18,9 @@ function App() {
       <WorkspaceProvider>
         <BrowserRouter>
           <Routes>
-            <Route path="/taskflow_v2/auth" element={<Auth />} />
+            <Route path="/auth" element={<Auth />} />
             <Route
-              path="/taskflow_v2"
+              path="/"
               element={
                 <ProtectedRoute>
                   <Layout />
@@ -28,7 +28,7 @@ function App() {
               }
             >
               <Route index element={<Dashboard />} />
-              <Route path="/taskflow_v2/workspace/:id" element={<Workspace />} />
+              <Route path="/workspace/:id" element={<Workspace />} />
             </Route>
           </Routes>
         </BrowserRouter>

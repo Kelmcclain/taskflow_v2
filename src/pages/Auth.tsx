@@ -15,7 +15,7 @@ export const Auth = () => {
 
   useEffect(() => {
     if (session) {
-      const from = (location.state as { from?: { pathname: string } })?.from?.pathname || '/taskflow_v2';
+      const from = (location.state as { from?: { pathname: string } })?.from?.pathname || '/';
       navigate(from, { replace: true });
     }
   }, [session, navigate, location]);

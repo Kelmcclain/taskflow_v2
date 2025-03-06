@@ -27,7 +27,7 @@ export const Layout: React.FC = () => {
 
   const handleSignOut = async () => {
     await signOut();
-    navigate("/taskflow_v2/auth");
+    navigate("/auth");
   };
 
   const handleMobileMenuToggle = () => {

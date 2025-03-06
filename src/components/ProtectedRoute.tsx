@@ -18,7 +18,7 @@ export const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ childr
 
   if (!session || !user) {
     // Save the attempted URL for redirecting after login
-    return <Navigate to="/taskflow_v2/auth" state={{ from: location }} replace />;
+    return <Navigate to="/auth" state={{ from: location }} replace />;
   }
 
   return <>{children}</>;

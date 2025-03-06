@@ -45,7 +45,7 @@ const Header: React.FC<HeaderProps> = ({
                 </button>
               )}
               
-              <Link to="/taskflow_v2" className="flex items-center group">
+              <Link to="/" className="flex items-center group">
                 <div className="relative">
                   <div className="absolute -inset-2 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-lg opacity-0 group-hover:opacity-100 blur transition-opacity duration-100" />
                   <div className="relative p-2 bg-white dark:bg-gray-800 rounded-lg transform transition-transform duration-100 group-hover:scale-110 group-hover:-rotate-3">
