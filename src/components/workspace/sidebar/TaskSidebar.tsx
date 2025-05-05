@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import { supabase } from '../../../lib/supabase';
 import { Task, Member } from '../../../types/workspace';
-import { TaskHeader } from './TaskHeader';
 import { TaskForm } from './TaskForm';
 import { TaskActions } from './TaskActions';
+import { X } from 'lucide-react';
 
 interface TaskSidebarProps {
   task: Task;
@@ -35,6 +35,17 @@ export const TaskSidebar: React.FC<TaskSidebarProps> = ({
   const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isOpen, setIsOpen] = useState(false);
+
+  // Handle animation
+  useEffect(() => {
+    // Open animation on mount
+    const timer = setTimeout(() => {
+      setIsOpen(true);
+    }, 50);
+    
+    return () => clearTimeout(timer);
+  }, []);
 
   // Update form data when task changes
   useEffect(() => {
@@ -116,7 +127,7 @@ export const TaskSidebar: React.FC<TaskSidebarProps> = ({
       } else {
         await onUpdate(task.id, taskData);
       }
-      onClose();
+      handleClosePanel();
     } catch (error) {
       console.error('Error saving task:', error);
       setError('Failed to save task');
@@ -127,7 +138,7 @@ export const TaskSidebar: React.FC<TaskSidebarProps> = ({
 
   const handleDelete = async () => {
     if (isNewTask) {
-      onClose();
+      handleClosePanel();
       return;
     }
 
@@ -135,7 +146,7 @@ export const TaskSidebar: React.FC<TaskSidebarProps> = ({
       try {
         setLoading(true);
         await onDelete(task.id);
-        onClose();
+        handleClosePanel();
       } catch (error) {
         console.error('Error deleting task:', error);
         setError('Failed to delete task');
@@ -145,33 +156,73 @@ export const TaskSidebar: React.FC<TaskSidebarProps> = ({
     }
   };
   
+  const handleClosePanel = () => {
+    setIsOpen(false);
+    // Wait for animation to complete before actually closing
+    setTimeout(() => {
+      onClose();
+    }, 300);
+  };
+
   return (
-    <div className="h-full border-l border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
-      <div className="h-full flex flex-col mx-auto lg:mx-0">
-        <div className="overflow-y-auto">
-          <div className="p-4 sm:p-6 lg:px-4 lg:py-6">
-            <TaskHeader isNew={isNewTask} onClose={onClose} />
-            {error && (
-              <div className="mb-4 p-3 text-sm text-red-600 bg-red-100 rounded-md">
-                {error}
-              </div>
-            )}
-            <TaskForm
-              formData={formData}
-              onChange={handleInputChange}
-              members={members}
+    <>
+      {/* Backdrop overlay with blur and dim */}
+      <div 
+        className={`fixed inset-0 bg-black/30 backdrop-blur-sm z-40 transition-opacity duration-300 ease-in-out ${
+          isOpen ? 'opacity-100' : 'opacity-0'
+        }`}
+        onClick={handleClosePanel}
+        aria-hidden="true"
+      />
+      
+      {/* Task sidebar panel */}
+      <div 
+        className={`fixed inset-y-0 right-0 z-50 w-full sm:w-3/4 md:w-2/3 lg:w-1/2 xl:w-2/5 h-full bg-white dark:bg-gray-800 shadow-2xl transition-transform duration-300 ease-in-out transform ${
+          isOpen ? 'translate-x-0' : 'translate-x-full'
+        }`}
+      >
+        <div className="h-full flex flex-col overflow-hidden">
+          {/* Header with mobile-friendly close button */}
+          <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+              {isNewTask ? 'New Task' : 'Edit Task'}
+            </h2>
+            <button
+              onClick={handleClosePanel}
+              className="p-1.5 rounded-md text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              aria-label="Close panel"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+          
+          {/* Scrollable content area */}
+          <div className="flex-1 overflow-y-auto">
+            <div className="p-4 sm:p-6">
+              {error && (
+                <div className="mb-4 p-3 text-sm text-red-600 bg-red-100 dark:bg-red-900/30 dark:text-red-300 rounded-md">
+                  {error}
+                </div>
+              )}
+              <TaskForm
+                formData={formData}
+                onChange={handleInputChange}
+                members={members}
+              />
+            </div>
+          </div>
+          
+          {/* Fixed footer with actions */}
+          <div className="border-t border-gray-200 dark:border-gray-700 p-4 sm:p-6 bg-gray-50 dark:bg-gray-800">
+            <TaskActions
+              isNew={isNewTask}
+              loading={loading}
+              onSave={handleSave}
+              onDelete={handleDelete}
             />
           </div>
         </div>
-        <div className="border-t border-gray-200 dark:border-gray-700 p-4 sm:p-6 lg:p-8">
-          <TaskActions
-            isNew={isNewTask}
-            loading={loading}
-            onSave={handleSave}
-            onDelete={handleDelete}
-          />
-        </div>
       </div>
-    </div>
+    </>
   );
 };

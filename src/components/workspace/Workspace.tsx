@@ -21,7 +21,6 @@ export const Workspace: React.FC = () => {
   const [selectedTask, setSelectedTask] = useState<Task | undefined>();
   const [isMembersModalOpen, setIsMembersModalOpen] = useState(false);
   const [members, setMembers] = useState<Member[]>([]);
-  const [sidebarClosing, setSidebarClosing] = useState(false);
   const { isMobileMenuOpen } = useContext(MobileMenuContext);
 
   useEffect(() => {
@@ -96,17 +95,11 @@ export const Workspace: React.FC = () => {
   }
 
   const handleSelectTask = (task: Task) => {
-    // Reset closing state and directly set the new task
-    setSidebarClosing(false);
     setSelectedTask(task);
   };
 
   const handleCloseSidebar = () => {
-    setSidebarClosing(true);
-    setTimeout(() => {
-      setSelectedTask(undefined);
-      setSidebarClosing(false);
-    }, 0);
+    setSelectedTask(undefined);
   };
 
   const handleUpdateTask = async (taskId: string, updates: Partial<Task>) => {
@@ -138,11 +131,8 @@ export const Workspace: React.FC = () => {
         isMobileMenuOpen={isMobileMenuOpen}
       />
 
-      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden lg:pl-64">
-        <div
-          className={`will-change-width transition-[width] duration-100 ease-in-out p-4 md:p-6 overflow-auto
-            ${selectedTask ? "lg:w-1/2" : "w-full"}`}
-        >
+      <div className="flex-1 overflow-hidden lg:pl-64">
+        <div className="p-4 md:p-6 h-full overflow-auto">
           <TaskFilters
             statusFilter={statusFilter}
             priorityFilter={priorityFilter}
@@ -161,24 +151,18 @@ export const Workspace: React.FC = () => {
             onSelectTask={handleSelectTask}
           />
         </div>
-
-        {selectedTask && (
-          <div
-            key={selectedTask.id || "new"}
-            className={`fixed inset-0 lg:relative lg:flex-1 overflow-auto h-full z-50 lg:z-auto
-      transform transition-transform duration-100 ease-in-out bg-white dark:bg-gray-900
-      ${sidebarClosing ? "translate-x-full" : "translate-x-0"}`}
-          >
-            <TaskSidebar
-              task={selectedTask}
-              onClose={handleCloseSidebar}
-              onUpdate={handleUpdateTask}
-              onCreate={handleCreateTask}
-              onDelete={deleteTask}
-            />
-          </div>
-        )}
       </div>
+
+      {selectedTask && (
+        <TaskSidebar
+          key={selectedTask.id || "new"}
+          task={selectedTask}
+          onClose={handleCloseSidebar}
+          onUpdate={handleUpdateTask}
+          onCreate={handleCreateTask}
+          onDelete={deleteTask}
+        />
+      )}
 
       <ManageWorkspaceMembersModal
         isOpen={isMembersModalOpen}
